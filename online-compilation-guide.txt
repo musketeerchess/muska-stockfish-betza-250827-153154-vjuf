@@ -1,0 +1,94 @@
+ONLINE WINDOWS COMPILATION METHODS
+===================================
+
+METHOD 1: GITHUB ACTIONS (RECOMMENDED - FREE)
+==============================================
+✅ Completely free and automated
+✅ Compiles both standard and BMI2 optimized versions  
+✅ Creates downloadable releases automatically
+✅ No local Windows machine needed
+
+Setup Steps:
+1. Create GitHub repository
+2. Upload integration files + .github/workflows/windows-build.yml
+3. Push to main branch or trigger manually
+4. Download compiled .exe files from Releases section
+
+METHOD 2: OTHER FREE CI/CD PLATFORMS
+====================================
+
+GitLab CI/CD:
+- Free tier includes Windows runners
+- Use .gitlab-ci.yml with Windows PowerShell
+- Similar workflow to GitHub Actions
+
+Azure DevOps:
+- Microsoft's platform with excellent Windows support
+- Free for public projects
+- azure-pipelines.yml configuration
+
+AppVeyor:
+- Windows-focused CI/CD service
+- Free for open source projects
+- Good Visual Studio integration
+
+METHOD 3: ONLINE IDE PLATFORMS
+==============================
+
+Gitpod:
+- Browser-based development environment
+- Can run Windows containers
+- Visual Studio Code interface
+
+CodeSandbox:
+- Supports C++ compilation
+- Limited Windows support
+
+Repl.it (Replit):
+- Good for development but limited Windows compilation
+
+METHOD 4: CLOUD DEVELOPMENT ENVIRONMENTS
+========================================
+
+GitHub Codespaces:
+- Full Visual Studio environment in browser
+- Windows support available
+- Pay-per-use pricing
+
+AWS Cloud9:
+- Amazon's cloud IDE
+- Windows instances available
+- EC2-based pricing
+
+RECOMMENDED APPROACH: GITHUB ACTIONS
+===================================
+The GitHub Actions workflow automatically:
+
+1. Checks out your code
+2. Sets up Visual Studio environment
+3. Compiles both versions:
+   - stockfish-betza-windows.exe (Standard)
+   - stockfish-betza-bmi2-windows.exe (BMI2)
+4. Tests executables 
+5. Creates GitHub Release with download links
+6. Provides detailed release notes
+
+Total time: ~5-10 minutes per build
+Cost: FREE (GitHub provides 2000 minutes/month free)
+
+ALTERNATIVE: CROSS-COMPILATION
+=============================
+You can also cross-compile from Linux to Windows using MinGW:
+
+```bash
+# Install MinGW on Ubuntu/Debian
+sudo apt-get install gcc-mingw-w64-x86-64
+
+# Compile for Windows
+x86_64-w64-mingw32-g++ -o stockfish.exe *.cpp -O3 -static
+```
+
+This can be done on any Linux-based online service including:
+- GitHub Actions Ubuntu runners
+- Google Colab
+- Linux-based Replit environments
