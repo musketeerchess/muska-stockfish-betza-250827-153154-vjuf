@@ -1,0 +1,64 @@
+WINDOWS COMPILATION TROUBLESHOOTING
+=====================================
+
+ISSUE: Small Executable Size (178KB instead of 1.5MB)
+=====================================================
+
+PROBLEM: The compiled executable is too small, indicating incomplete linking or missing dependencies.
+
+SOLUTION APPLIED:
+1. Added /MT flag for static runtime linking
+2. Explicit linking with LIBCMT (static C runtime)
+3. Removed MSVCRT (dynamic runtime) dependency
+4. Added KERNEL32 and USER32 system libraries
+5. Added size verification in build process
+
+FIXED COMPILATION FLAGS:
+- /MT = Static multithreaded runtime (critical for standalone .exe)
+- /NODEFAULTLIB:MSVCRT = Remove dynamic runtime dependency
+- /DEFAULTLIB:LIBCMT = Use static C runtime
+- /SUBSYSTEM:CONSOLE = Console application
+
+EXPECTED RESULTS:
+- Executable size: 1.0-1.5MB (not 178KB)
+- No external DLL dependencies
+- Runs on any Windows system without Visual C++ Redistributable
+
+VERIFICATION STEPS:
+1. Check executable size > 500KB
+2. Test UCI protocol responds
+3. Test Betza piece functionality
+4. Verify no missing DLL errors
+
+COMMON ISSUES AND FIXES:
+========================
+
+1. Small executable (< 500KB):
+   - Missing /MT flag (static linking)
+   - Missing source files in compilation
+   - Linker not including all libraries
+
+2. "MSVCP140.dll not found" errors:
+   - Not using /MT static linking
+   - Need to redistribute Visual C++ Runtime
+
+3. "Entry point not found" errors:
+   - Missing main.cpp or main() function
+   - Incorrect subsystem specification
+
+4. Performance issues:
+   - Missing optimization flags (/O2)
+   - Missing processor-specific flags (/arch:AVX2)
+
+MANUAL COMPILATION (if GitHub Actions fails):
+============================================
+
+# In Visual Studio Developer Command Prompt:
+cd src
+cl /c /EHsc /O2 /DNDEBUG /DIS_64BIT /DUSE_POPCNT /DEVAL_LEARN /MT /arch:AVX2 *.cpp syzygy\*.cpp
+link /out:stockfish-betza.exe /SUBSYSTEM:CONSOLE /NODEFAULTLIB:MSVCRT /DEFAULTLIB:LIBCMT *.obj
+
+# Verify size:
+dir stockfish-betza.exe
+
+# Should show ~1.5MB executable
