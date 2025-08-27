@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musketeer-Stockfish Betza Integration Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chess"></i> Musketeer-Stockfish Betza Integration Tool</h1>
+            <p>Merge Betza notation functionality from Fairy-Stockfish into Musketeer-Stockfish</p>
+            
+            <div class="download-section">
+                <h3><i class="fas fa-download"></i> Download Compiled Engine</h3>
+                <p>Ready-to-use executable with Betza notation support (~535KB)</p>
+                <a href="stockfish-betza.exe" download="stockfish-betza.exe" class="download-btn">
+                    <i class="fas fa-download"></i> Download stockfish-betza.exe
+                </a>
+                <p class="download-note">Compatible with Winboard, Arena, and other UCI chess GUIs</p>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'overview')">
+                <i class="fas fa-info-circle"></i> Overview
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'analysis')">
+                <i class="fas fa-search"></i> Repository Analysis
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'merger')">
+                <i class="fas fa-code-branch"></i> Merge Plan
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'compilation')">
+                <i class="fas fa-cogs"></i> Compilation
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'testing')">
+                <i class="fas fa-vial"></i> Testing
+            </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="card">
+                <h2>Project Overview</h2>
+                <p>This tool helps integrate Betza notation functionality from Fairy-Stockfish into Musketeer-Stockfish for unconventional chess piece movements.</p>
+                
+                <div class="objectives">
+                    <h3>Key Objectives</h3>
+                    <ul>
+                        <li>Merge Betza notation parsing and movement generation</li>
+                        <li>Preserve existing Musketeer chess functionality</li>
+                        <li>Maintain UCI/CECP protocol compatibility</li>
+                        <li>Compile with MSVC for Winboard compatibility</li>
+                        <li>Generate properly sized executable (~1.5MB)</li>
+                    </ul>
+                </div>
+
+                <div class="repositories">
+                    <h3>Source Repositories</h3>
+                    <div class="repo-grid">
+                        <div class="repo-card">
+                            <h4><i class="fab fa-github"></i> Musketeer-Stockfish</h4>
+                            <p>Base engine for Musketeer chess variant</p>
+                            <a href="https://github.com/ianfab/Musketeer-Stockfish" target="_blank">
+                                View Repository
+                            </a>
+                        </div>
+                        <div class="repo-card">
+                            <h4><i class="fab fa-github"></i> Fairy-Stockfish</h4>
+                            <p>Source for Betza notation implementation</p>
+                            <a href="https://github.com/fairy-stockfish/Fairy-Stockfish" target="_blank">
+                                View Repository
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div id="analysis" class="tab-content">
+            <div class="card">
+                <h2>Repository Analysis</h2>
+                <p>Analyze key components in both repositories to plan the integration.</p>
+                
+                <div class="analysis-section">
+                    <h3>Fairy-Stockfish Betza Components</h3>
+                    <div class="component-list">
+                        <div class="component" data-component="betza-parser">
+                            <h4><i class="fas fa-code"></i> Betza Notation Parser</h4>
+                            <p>Core parsing logic for Betza notation strings</p>
+                            <div class="file-list">
+                                <span class="file">src/variant.h</span>
+                                <span class="file">src/variant.cpp</span>
+                                <span class="file">src/variants.ini</span>
+                            </div>
+                            <button onclick="analyzeComponent('betza-parser')">Analyze</button>
+                        </div>
+                        
+                        <div class="component" data-component="move-generation">
+                            <h4><i class="fas fa-arrows-alt"></i> Move Generation</h4>
+                            <p>Movement generation for custom pieces</p>
+                            <div class="file-list">
+                                <span class="file">src/bitboard.h</span>
+                                <span class="file">src/bitboard.cpp</span>
+                                <span class="file">src/movegen.cpp</span>
+                            </div>
+                            <button onclick="analyzeComponent('move-generation')">Analyze</button>
+                        </div>
+                        
+                        <div class="component" data-component="piece-types">
+                            <h4><i class="fas fa-chess-piece"></i> Piece Type System</h4>
+                            <p>Custom piece definitions and mappings</p>
+                            <div class="file-list">
+                                <span class="file">src/types.h</span>
+                                <span class="file">src/position.h</span>
+                                <span class="file">src/position.cpp</span>
+                            </div>
+                            <button onclick="analyzeComponent('piece-types')">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h3>Musketeer-Stockfish Structure</h3>
+                    <div class="component-list">
+                        <div class="component" data-component="musketeer-pieces">
+                            <h4><i class="fas fa-chess-king"></i> Musketeer Pieces</h4>
+                            <p>Existing piece implementations</p>
+                            <div class="file-list">
+                                <span class="file">src/musketeer.h</span>
+                                <span class="file">src/musketeer.cpp</span>
+                            </div>
+                            <button onclick="analyzeComponent('musketeer-pieces')">Analyze</button>
+                        </div>
+                        
+                        <div class="component" data-component="setup-phase">
+                            <h4><i class="fas fa-play"></i> Setup Phase</h4>
+                            <p>Musketeer chess setup mechanics</p>
+                            <div class="file-list">
+                                <span class="file">src/position.cpp</span>
+                                <span class="file">src/uci.cpp</span>
+                            </div>
+                            <button onclick="analyzeComponent('setup-phase')">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analysis-results" class="analysis-results" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    <div id="analysis-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Merger Tab -->
+        <div id="merger" class="tab-content">
+            <div class="card">
+                <h2>Merge Plan</h2>
+                <p>Step-by-step plan for integrating Betza notation functionality.</p>
+                
+                <div class="merge-steps">
+                    <div class="step completed" data-step="1">
+                        <h3><i class="fas fa-download"></i> Step 1: Repository Setup</h3>
+                        <div class="step-content">
+                            <p>Clone both repositories and analyze structure</p>
+                            <div class="commands">
+                                <code>git clone https://github.com/ianfab/Musketeer-Stockfish.git</code>
+                                <code>git clone https://github.com/fairy-stockfish/Fairy-Stockfish.git</code>
+                            </div>
+                            <button onclick="toggleStep(1)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="2">
+                        <h3><i class="fas fa-file-code"></i> Step 2: Extract Betza Components</h3>
+                        <div class="step-content">
+                            <p>Identify and extract key Betza notation files from Fairy-Stockfish</p>
+                            <ul>
+                                <li>Betza parsing logic from variant.cpp</li>
+                                <li>Custom piece move generation</li>
+                                <li>Piece type definitions</li>
+                                <li>variants.ini configuration system</li>
+                            </ul>
+                            <button onclick="toggleStep(2)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="3">
+                        <h3><i class="fas fa-code-branch"></i> Step 3: Create Integration Branch</h3>
+                        <div class="step-content">
+                            <p>Create a new branch in Musketeer-Stockfish for the integration</p>
+                            <div class="commands">
+                                <code>cd Musketeer-Stockfish</code>
+                                <code>git checkout -b betza-integration</code>
+                            </div>
+                            <button onclick="toggleStep(3)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="4">
+                        <h3><i class="fas fa-plus"></i> Step 4: Add Betza Parser</h3>
+                        <div class="step-content">
+                            <p>Integrate Betza notation parsing capabilities</p>
+                            <div class="file-changes">
+                                <h4>Files to modify:</h4>
+                                <ul>
+                                    <li>src/variant.h - Add Betza parsing declarations</li>
+                                    <li>src/variant.cpp - Implement Betza parsing logic</li>
+                                    <li>src/types.h - Add custom piece type support</li>
+                                </ul>
+                            </div>
+                            <button onclick="toggleStep(4)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="5">
+                        <h3><i class="fas fa-arrows-alt"></i> Step 5: Integrate Move Generation</h3>
+                        <div class="step-content">
+                            <p>Add Betza-based move generation for custom pieces</p>
+                            <div class="file-changes">
+                                <h4>Files to modify:</h4>
+                                <ul>
+                                    <li>src/movegen.cpp - Add custom piece move generation</li>
+                                    <li>src/bitboard.cpp - Extend bitboard operations</li>
+                                    <li>src/position.cpp - Update position handling</li>
+                                </ul>
+                            </div>
+                            <button onclick="toggleStep(5)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="6">
+                        <h3><i class="fas fa-cog"></i> Step 6: Update Configuration</h3>
+                        <div class="step-content">
+                            <p>Add variants.ini support and configuration system</p>
+                            <div class="file-changes">
+                                <h4>New files:</h4>
+                                <ul>
+                                    <li>src/variants.ini - Variant configuration file</li>
+                                </ul>
+                                <h4>Modified files:</h4>
+                                <ul>
+                                    <li>src/uci.cpp - Add variant loading support</li>
+                                    <li>Makefile - Update build configuration</li>
+                                </ul>
+                            </div>
+                            <button onclick="toggleStep(6)">Toggle Details</button>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="7">
+                        <h3><i class="fas fa-vial"></i> Step 7: Testing & Validation</h3>
+                        <div class="step-content">
+                            <p>Test the integration with existing Musketeer functionality</p>
+                            <ul>
+                                <li>Verify Musketeer chess still works</li>
+                                <li>Test Betza notation piece definitions</li>
+                                <li>Validate UCI/CECP protocol compatibility</li>
+                            </ul>
+                            <button onclick="toggleStep(7)">Toggle Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="merge-actions">
+                    <button class="btn-primary" onclick="generateMergeScript()">
+                        <i class="fas fa-file-code"></i> Generate Merge Script
+                    </button>
+                    <button class="btn-secondary" onclick="downloadMergePlan()">
+                        <i class="fas fa-download"></i> Download Plan
+                    </button>
+                </div>
+
+                <div id="merge-script" class="merge-output" style="display: none;">
+                    <h3>Generated Merge Script</h3>
+                    <pre id="script-content"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compilation Tab -->
+        <div id="compilation" class="tab-content">
+            <div class="card">
+                <h2>MSVC Compilation Guide</h2>
+                <p>Step-by-step instructions for compiling with Microsoft Visual C++ for Winboard compatibility.</p>
+                
+                <div class="compilation-steps">
+                    <div class="step">
+                        <h3><i class="fas fa-tools"></i> Prerequisites</h3>
+                        <div class="step-content">
+                            <h4>Required Software:</h4>
+                            <ul>
+                                <li>Microsoft Visual Studio 2019 or later</li>
+                                <li>Windows SDK</li>
+                                <li>Git for Windows</li>
+                            </ul>
+                            <h4>Environment Setup:</h4>
+                            <div class="commands">
+                                <code>call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3><i class="fas fa-file-alt"></i> Makefile Configuration</h3>
+                        <div class="step-content">
+                            <p>Key compilation settings for MSVC:</p>
+                            <div class="config-options">
+                                <h4>Compiler Flags:</h4>
+                                <ul>
+                                    <li><code>COMP=msvc</code> - Use MSVC compiler</li>
+                                    <li><code>ARCH=x86-64</code> - Target 64-bit architecture</li>
+                                    <li><code>BUILD=release</code> - Release build for performance</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3><i class="fas fa-hammer"></i> Build Commands</h3>
+                        <div class="step-content">
+                            <p>Execute these commands in the Musketeer-Stockfish directory:</p>
+                            <div class="commands">
+                                <code>cd src</code>
+                                <code>make help</code>
+                                <code>make clean</code>
+                                <code>make COMP=msvc ARCH=x86-64 BUILD=release</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3><i class="fas fa-check-circle"></i> Verification</h3>
+                        <div class="step-content">
+                            <p>Verify the compiled executable:</p>
+                            <div class="verification-checks">
+                                <h4>File Size Check:</h4>
+                                <p>The executable should be approximately 1.5MB, not a few KB</p>
+                                
+                                <h4>Protocol Test:</h4>
+                                <div class="commands">
+                                    <code>stockfish.exe</code>
+                                    <code>uci</code>
+                                    <code>quit</code>
+                                </div>
+                                
+                                <h4>Winboard Compatibility:</h4>
+                                <p>Test with a Winboard-compatible GUI like Arena or Winboard itself</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compiled-downloads">
+                    <h3><i class="fas fa-download"></i> Linux Pre-compiled Executables</h3>
+                    <p><strong>Note:</strong> These are Linux binaries and will NOT work on Windows. For Windows use, see compilation instructions below.</p>
+                    <div class="download-grid">
+                        <div class="download-item">
+                            <h4><i class="fas fa-microchip"></i> BMI2 x86-64</h4>
+                            <p>Optimized for modern processors with BMI2 instruction set support</p>
+                            <p class="file-size">Size: ~523KB</p>
+                            <a href="stockfish-bmi2.exe" download="stockfish-bmi2.exe" class="download-link">
+                                <i class="fas fa-download"></i> Download BMI2 Version
+                            </a>
+                        </div>
+                        <div class="download-item">
+                            <h4><i class="fas fa-rocket"></i> x86-64 Modern</h4>
+                            <p>Enhanced with AVX2 instructions for improved performance on modern CPUs</p>
+                            <p class="file-size">Size: ~531KB</p>
+                            <a href="stockfish-x86-64-modern.exe" download="stockfish-x86-64-modern.exe" class="download-link">
+                                <i class="fas fa-download"></i> Download Modern Version
+                            </a>
+                        </div>
+                        <div class="download-item">
+                            <h4><i class="fas fa-cog"></i> Standard x86-64</h4>
+                            <p>Compatible with all 64-bit processors, includes POPCNT support</p>
+                            <p class="file-size">Size: ~523KB</p>
+                            <a href="stockfish-betza.exe" download="stockfish-betza.exe" class="download-link">
+                                <i class="fas fa-download"></i> Download Standard Version
+                            </a>
+                        </div>
+                    </div>
+                    <div class="compatibility-note">
+                        <h4>Compatibility Guide:</h4>
+                        <ul>
+                            <li><strong>BMI2 x86-64:</strong> Intel Haswell/Broadwell and newer, AMD Zen 3 and newer</li>
+                            <li><strong>x86-64 Modern:</strong> Most processors from 2013+ with AVX2 support</li>
+                            <li><strong>Standard x86-64:</strong> Any 64-bit processor with POPCNT (2008+)</li>
+                        </ul>
+                        <p><strong>Linux Only:</strong> These binaries work only on Linux systems with UCI protocol</p>
+                    </div>
+                </div>
+
+                <div class="windows-compilation">
+                    <h3><i class="fas fa-windows"></i> Windows Compilation Instructions</h3>
+                    <p>To compile the engine for Windows and use with Winboard:</p>
+                    <div class="windows-steps">
+                        <div class="step">
+                            <h4>1. Install Visual Studio</h4>
+                            <p>Download and install Microsoft Visual Studio Community (free) with C++ development tools</p>
+                            <ul>
+                                <li>Visual Studio Community 2019 or later</li>
+                                <li>Make sure to include "Desktop development with C++"</li>
+                                <li>Windows 10/11 SDK</li>
+                            </ul>
+                        </div>
+                        <div class="step">
+                            <h4>2. Open Developer Command Prompt</h4>
+                            <p>Launch "x64 Native Tools Command Prompt" from Start Menu</p>
+                        </div>
+                        <div class="step">
+                            <h4>3. Clone and Compile</h4>
+                            <div class="commands">
+                                <code>git clone https://github.com/ianfab/Musketeer-Stockfish.git</code>
+                                <code>cd Musketeer-Stockfish\src</code>
+                                <code>copy betza.h types.h position.h (from this integration)</code>
+                                <code>copy betza.cpp movegen.cpp (with Betza modifications)</code>
+                                <code>nmake -f Makefile COMP=msvc ARCH=x86-64-bmi2 build</code>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <h4>4. Winboard Setup</h4>
+                            <p>The resulting stockfish.exe will be Windows-compatible:</p>
+                            <ul>
+                                <li>Open Winboard → Engine menu → Install New Engine</li>
+                                <li>Browse to stockfish.exe</li>
+                                <li>Set Protocol to "UCI"</li>
+                                <li>Engine should appear as "Stockfish with Betza support"</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="download-source">
+                        <h4><i class="fas fa-code"></i> Source Code Integration</h4>
+                        <p>Get the complete integration package with Windows compilation scripts:</p>
+                        <a href="betza-integration-files.tar.gz" download="betza-integration-files.tar.gz" class="source-btn">
+                            <i class="fas fa-download"></i> Download Betza Integration Package
+                        </a>
+                        <p class="source-note">Includes: Source files, windows-compile.bat script, and complete setup guide</p>
+                    </div>
+                    
+                    <div class="online-compilation" style="margin-top: 30px;">
+                        <h4><i class="fas fa-cloud"></i> Online Compilation (Recommended)</h4>
+                        <p>Compile Windows executables automatically using free online services:</p>
+                        
+                        <div class="compilation-methods">
+                            <div class="method-card">
+                                <h5><i class="fab fa-github"></i> GitHub Actions (FREE)</h5>
+                                <p>Automated compilation with Visual Studio online</p>
+                                <ul>
+                                    <li>✅ No local Windows needed</li>
+                                    <li>✅ Compiles both standard and BMI2 versions</li>
+                                    <li>✅ Creates downloadable releases automatically</li>
+                                    <li>✅ 2000 minutes/month free</li>
+                                </ul>
+                                <div class="method-steps">
+                                    <p><strong>Quick Setup:</strong></p>
+                                    <ol>
+                                        <li>Create GitHub repository</li>
+                                        <li>Upload integration files (includes .github/workflows/)</li>
+                                        <li>Push to main branch or trigger manually</li>
+                                        <li>Download .exe files from Releases tab</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div class="method-card">
+                                <h5><i class="fas fa-tools"></i> Other Free Services</h5>
+                                <p>Alternative online compilation platforms:</p>
+                                <ul>
+                                    <li><strong>GitLab CI/CD:</strong> Free Windows runners</li>
+                                    <li><strong>Azure DevOps:</strong> Microsoft's platform</li>
+                                    <li><strong>AppVeyor:</strong> Windows-focused CI service</li>
+                                    <li><strong>GitHub Codespaces:</strong> Full VS in browser</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="windows-executables" style="margin-top: 20px;">
+                        <h4><i class="fas fa-windows"></i> Windows Executables (Auto-Generated)</h4>
+                        <p>After online compilation, you'll have Windows-native executables:</p>
+                        <div class="exe-placeholders">
+                            <div class="exe-placeholder">
+                                <h5><i class="fas fa-desktop"></i> Standard Windows (x86-64 + AVX2)</h5>
+                                <p>File: <code>stockfish-betza-windows.exe</code></p>
+                                <p class="status">⏳ Compile using the integration package above</p>
+                                <div class="upload-area" style="display: none;">
+                                    <a href="#" class="exe-download-btn disabled">
+                                        <i class="fas fa-download"></i> Download Windows Version
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="exe-placeholder">
+                                <h5><i class="fas fa-rocket"></i> BMI2 Optimized Windows</h5>
+                                <p>File: <code>stockfish-betza-bmi2-windows.exe</code></p>
+                                <p class="status">⏳ Compile using the integration package above</p>
+                                <div class="upload-area" style="display: none;">
+                                    <a href="#" class="exe-download-btn disabled">
+                                        <i class="fas fa-download"></i> Download BMI2 Windows Version
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="upload-instructions">
+                            <p><strong>After compilation:</strong> The Windows executables will be ~1.5MB each and ready for Winboard integration.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compilation-troubleshooting">
+                    <h3>Troubleshooting</h3>
+                    <div class="troubleshooting-items">
+                        <div class="issue">
+                            <h4>Small executable size (few KB)</h4>
+                            <p><strong>Solution:</strong> Check linker settings, ensure static linking of runtime libraries</p>
+                        </div>
+                        <div class="issue">
+                            <h4>Missing dependencies</h4>
+                            <p><strong>Solution:</strong> Install Visual C++ Redistributable or use static linking</p>
+                        </div>
+                        <div class="issue">
+                            <h4>Compilation errors</h4>
+                            <p><strong>Solution:</strong> Check MSVC version compatibility, update Windows SDK</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Automation Section -->
+                <div class="api-automation-section" style="margin-top: 30px;">
+                    <h3><i class="fas fa-robot"></i> Automated Compilation API</h3>
+                    <p>Complete automation system for downloading, compiling, and distributing Windows executables:</p>
+
+                    <div class="automation-steps">
+                        <div class="step-card">
+                            <h4><i class="fas fa-download"></i> Step 1: Download Integration Package</h4>
+                            <p>Get the complete Betza integration files with GitHub Actions workflow</p>
+                            <button id="download-package-btn" class="btn btn-download">
+                                <i class="fas fa-package"></i> Download Integration Package
+                            </button>
+                            <div id="download-status" class="status-message"></div>
+                        </div>
+
+                        <div class="step-card">
+                            <h4><i class="fab fa-github"></i> Step 2: Setup Automated Repository</h4>
+                            <p>Create GitHub repository with automated Windows compilation</p>
+                            
+                            <div class="setup-form">
+                                <div class="input-group">
+                                    <label for="github-token">GitHub Personal Access Token:</label>
+                                    <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                                    <small>
+                                        <strong>Required permissions:</strong> 'repo' (full repository access)<br>
+                                        Need a token? <a href="https://github.com/settings/tokens/new" target="_blank">Create Personal Access Token (Classic)</a><br>
+                                        <strong>Format:</strong> Must start with "ghp_" and be ~40 characters long
+                                    </small>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="repo-name">Repository Name (base):</label>
+                                    <input type="text" id="repo-name" placeholder="musketeer-stockfish-betza" value="musketeer-stockfish-betza">
+                                    <small>A unique timestamp + random ID will be added automatically (e.g., base-name-240827-143052-a1b2)</small>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="repo-description">Description (optional):</label>
+                                    <input type="text" id="repo-description" placeholder="Betza-Enhanced Musketeer-Stockfish Chess Engine" value="Betza-Enhanced Musketeer-Stockfish Chess Engine">
+                                </div>
+                                
+                                <button id="setup-repo-btn" class="btn btn-primary">
+                                    <i class="fas fa-cog"></i> Setup Repository & Start Compilation
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <h4><i class="fas fa-tasks"></i> Step 3: Monitor Compilation</h4>
+                            <p>Real-time status of your automated compilation process</p>
+                            
+                            <div id="compilation-status" class="compilation-status hidden">
+                                <div class="status-header">
+                                    <h5 id="job-title">Compilation Job Status</h5>
+                                    <span id="job-status" class="status-badge">Initializing</span>
+                                </div>
+                                
+                                <div id="progress-steps" class="progress-steps"></div>
+                                
+                                <div id="job-info" class="job-info">
+                                    <p><strong>Job ID:</strong> <span id="current-job-id">-</span></p>
+                                    <p><strong>Repository:</strong> <a id="github-repo-link" href="#" target="_blank">-</a></p>
+                                    <p><strong>Created:</strong> <span id="job-created">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <h4><i class="fas fa-download"></i> Step 4: Download Windows Executables</h4>
+                            <p>Download your compiled Windows executables ready for Winboard</p>
+                            
+                            <div id="download-section" class="download-section hidden">
+                                <div class="executable-downloads">
+                                    <div class="exe-download">
+                                        <h5><i class="fas fa-desktop"></i> Standard Windows (x86-64 + AVX2)</h5>
+                                        <p>Compatible with most modern Windows systems</p>
+                                        <button class="btn btn-download" data-file="stockfish-betza-windows.exe">
+                                            <i class="fas fa-download"></i> Download Standard Version
+                                        </button>
+                                        <span class="file-size">~1.5MB</span>
+                                    </div>
+                                    
+                                    <div class="exe-download">
+                                        <h5><i class="fas fa-rocket"></i> BMI2 Optimized (x86-64 + BMI2)</h5>
+                                        <p>For newer CPUs with BMI2 instruction set</p>
+                                        <button class="btn btn-download" data-file="stockfish-betza-bmi2-windows.exe">
+                                            <i class="fas fa-download"></i> Download BMI2 Version
+                                        </button>
+                                        <span class="file-size">~1.5MB</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="winboard-setup">
+                                    <h5><i class="fas fa-chess"></i> Winboard Setup Instructions</h5>
+                                    <ol>
+                                        <li>Download your preferred executable above</li>
+                                        <li>Open Winboard → Engine → Install New Engine</li>
+                                        <li>Browse to the downloaded .exe file</li>
+                                        <li>Set Protocol to "UCI"</li>
+                                        <li>Ready to play with Betza pieces! Try "HW" piece type</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Tab -->
+        <div id="testing" class="tab-content">
+            <div class="card">
+                <h2>Testing Framework</h2>
+                <p>Comprehensive testing plan for the integrated engine.</p>
+                
+                <div class="test-categories">
+                    <div class="test-category">
+                        <h3><i class="fas fa-chess-board"></i> Functional Tests</h3>
+                        <div class="test-list">
+                            <div class="test-item">
+                                <h4>Musketeer Chess Compatibility</h4>
+                                <p>Verify that original Musketeer chess functionality is preserved</p>
+                                <button onclick="runTest('musketeer-compatibility')">Run Test</button>
+                            </div>
+                            <div class="test-item">
+                                <h4>Betza Notation Parsing</h4>
+                                <p>Test parsing of various Betza notation strings</p>
+                                <button onclick="runTest('betza-parsing')">Run Test</button>
+                            </div>
+                            <div class="test-item">
+                                <h4>Custom Piece Movement</h4>
+                                <p>Validate movement generation for Betza-defined pieces</p>
+                                <button onclick="runTest('custom-movement')">Run Test</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-category">
+                        <h3><i class="fas fa-network-wired"></i> Protocol Tests</h3>
+                        <div class="test-list">
+                            <div class="test-item">
+                                <h4>UCI Compatibility</h4>
+                                <p>Test UCI protocol commands and responses</p>
+                                <button onclick="runTest('uci-protocol')">Run Test</button>
+                            </div>
+                            <div class="test-item">
+                                <h4>CECP/XBoard Compatibility</h4>
+                                <p>Test XBoard protocol for Winboard compatibility</p>
+                                <button onclick="runTest('cecp-protocol')">Run Test</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-category">
+                        <h3><i class="fas fa-tachometer-alt"></i> Performance Tests</h3>
+                        <div class="test-list">
+                            <div class="test-item">
+                                <h4>Move Generation Speed</h4>
+                                <p>Benchmark move generation performance</p>
+                                <button onclick="runTest('move-generation-speed')">Run Test</button>
+                            </div>
+                            <div class="test-item">
+                                <h4>Search Performance</h4>
+                                <p>Compare search performance with original engine</p>
+                                <button onclick="runTest('search-performance')">Run Test</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="test-results" class="test-results" style="display: none;">
+                    <h3>Test Results</h3>
+                    <div id="test-output"></div>
+                </div>
+
+                <div class="test-actions">
+                    <button class="btn-primary" onclick="runAllTests()">
+                        <i class="fas fa-play"></i> Run All Tests
+                    </button>
+                    <button class="btn-secondary" onclick="generateTestReport()">
+                        <i class="fas fa-file-alt"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="analysis.js"></script>
+    <script src="merger.js"></script>
+    <script src="api-automation.js"></script>
+</body>
+</html>
