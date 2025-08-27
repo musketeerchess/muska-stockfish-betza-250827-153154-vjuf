@@ -1,0 +1,271 @@
+name: Build Windows Executables with Betza Support
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Standard x86-64"
+            flags: "/O2 /DNDEBUG /DIS_64BIT /DUSE_POPCNT"
+            output: "stockfish-betza-windows.exe"
+          - name: "BMI2 Optimized"  
+            flags: "/O2 /DNDEBUG /DIS_64BIT /DUSE_POPCNT /DUSE_BMI2"
+            output: "stockfish-betza-bmi2-windows.exe"
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSVC environment
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup Visual Studio environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: List all source files
+      run: |
+        echo "=== Main source files ==="
+        dir src\*.cpp
+        echo "=== Header files ==="  
+        dir src\*.h
+        echo "=== Syzygy files ==="
+        if exist src\syzygy dir src\syzygy\*.*
+
+    - name: Compile ${{ matrix.config.name }}
+      working-directory: src
+      run: |
+        echo "=== Starting compilation ==="
+        
+        REM Set environment for static linking
+        set CFLAGS=/MT /EHsc ${{ matrix.config.flags }} /W1 /nologo
+        set LDFLAGS=/SUBSYSTEM:CONSOLE /MACHINE:X64 /NOLOGO
+        
+        echo "=== Compiling individual source files ==="
+        cl %CFLAGS% /c benchmark.cpp
+        cl %CFLAGS% /c bitbase.cpp  
+        cl %CFLAGS% /c bitboard.cpp
+        cl %CFLAGS% /c endgame.cpp
+        cl %CFLAGS% /c evaluate.cpp
+        cl %CFLAGS% /c main.cpp
+        cl %CFLAGS% /c material.cpp
+        cl %CFLAGS% /c misc.cpp
+        cl %CFLAGS% /c movegen.cpp
+        cl %CFLAGS% /c movepick.cpp
+        cl %CFLAGS% /c pawns.cpp
+        cl %CFLAGS% /c position.cpp
+        cl %CFLAGS% /c psqt.cpp
+        cl %CFLAGS% /c search.cpp
+        cl %CFLAGS% /c thread.cpp
+        cl %CFLAGS% /c timeman.cpp
+        cl %CFLAGS% /c tt.cpp
+        cl %CFLAGS% /c uci.cpp
+        cl %CFLAGS% /c ucioption.cpp
+        cl %CFLAGS% /c xboard.cpp
+        cl %CFLAGS% /c betza.cpp
+        
+        REM Compile Syzygy if exists
+        if exist syzygy\tbprobe.cpp (
+          echo "=== Compiling Syzygy tablebase ==="
+          cl %CFLAGS% /c syzygy\tbprobe.cpp
+        )
+        
+        echo "=== Object files created ==="
+        dir *.obj
+        
+        echo "=== Linking final executable ==="
+        link %LDFLAGS% /out:${{ matrix.config.output }} *.obj ^
+             /DEFAULTLIB:kernel32.lib /DEFAULTLIB:user32.lib ^
+             /DEFAULTLIB:advapi32.lib /DEFAULTLIB:ole32.lib ^
+             /DEFAULTLIB:libcmt.lib /DEFAULTLIB:libcpmt.lib ^
+             /NODEFAULTLIB:msvcrt.lib
+        
+        echo "=== Final executable created ==="
+        dir ${{ matrix.config.output }}
+        
+        echo "=== Testing executable ==="
+        echo uci | .\${{ matrix.config.output }}
+
+    - name: CRITICAL SIZE VERIFICATION for ${{ matrix.config.name }}
+      working-directory: src
+      run: |
+        echo "=============================================="
+        echo "🔍 CRITICAL: EXECUTABLE SIZE VERIFICATION"
+        echo "=============================================="
+        
+        $exe = "${{ matrix.config.output }}"
+        if (Test-Path $exe) {
+          $size = (Get-Item $exe).Length
+          $sizeKB = [math]::Round($size/1024, 0)
+          $sizeMB = [math]::Round($size/1024/1024, 2)
+          
+          Write-Host "📊 Executable: $exe" -ForegroundColor Cyan
+          Write-Host "📊 Size: $size bytes ($sizeKB KB / $sizeMB MB)" -ForegroundColor Cyan
+          
+          if ($size -lt 800000) {
+            Write-Host "❌ FAIL: EXECUTABLE TOO SMALL!" -ForegroundColor Red
+            Write-Host "❌ Current: $sizeKB KB" -ForegroundColor Red  
+            Write-Host "❌ Required: > 800 KB (0.8 MB)" -ForegroundColor Red
+            Write-Host "❌ This indicates incomplete static linking or missing source files" -ForegroundColor Red
+            Write-Host "=============================================="
+            exit 1
+          } else {
+            Write-Host "✅ SUCCESS: Executable size is CORRECT ($sizeMB MB)" -ForegroundColor Green
+            Write-Host "✅ Size check PASSED: $sizeKB KB > 800 KB minimum" -ForegroundColor Green
+          }
+          
+          Write-Host "=============================================="
+          Write-Host "🧪 Testing UCI protocol functionality..."
+          $output = echo "uci`nquit" | .\$exe
+          if ($output -match "uciok") {
+            Write-Host "✅ SUCCESS: UCI protocol responding correctly" -ForegroundColor Green
+          } else {
+            Write-Host "❌ ERROR: UCI protocol not responding" -ForegroundColor Red
+            Write-Host "Output received: $output"
+          }
+          Write-Host "=============================================="
+        } else {
+          Write-Host "❌ CRITICAL ERROR: Executable file not found: $exe" -ForegroundColor Red
+          Write-Host "=============================================="
+          exit 1
+        }
+
+    - name: VERIFY EXECUTABLE SIZE BEFORE UPLOAD
+      working-directory: src
+      run: |
+        echo "🔍 PRE-UPLOAD SIZE VERIFICATION"
+        echo "=============================================="
+        
+        $exe = "${{ matrix.config.output }}"
+        if (Test-Path $exe) {
+          $size = (Get-Item $exe).Length
+          $sizeKB = [math]::Round($size/1024, 0)
+          $sizeMB = [math]::Round($size/1024/1024, 2)
+          
+          Write-Host "📊 About to upload: $exe" -ForegroundColor Cyan
+          Write-Host "📊 File size: $size bytes ($sizeKB KB / $sizeMB MB)" -ForegroundColor Cyan
+          
+          if ($size -lt 800000) {
+            Write-Host "❌ BLOCKING UPLOAD: File too small ($sizeKB KB < 800 KB)" -ForegroundColor Red
+            Write-Host "❌ This would result in broken downloads for users" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host "✅ Size OK for upload: $sizeKB KB" -ForegroundColor Green
+          }
+        } else {
+          Write-Host "❌ File not found for upload: $exe" -ForegroundColor Red
+          exit 1
+        }
+        echo "=============================================="
+
+    - name: Upload ${{ matrix.config.name }} executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.config.output }}
+        path: src/${{ matrix.config.output }}
+        retention-days: 30
+
+  create-release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./executables
+
+    - name: VERIFY DOWNLOADED EXECUTABLE SIZES
+      run: |
+        echo "🔍 FINAL DOWNLOADABLE EXECUTABLE VERIFICATION"
+        echo "=============================================="
+        
+        find ./executables -type f -name "*.exe" | while read exe; do
+          if [ -f "$exe" ]; then
+            size=$(stat -c%s "$exe")
+            sizeKB=$((size / 1024))
+            sizeMB=$(echo "scale=2; $size / 1048576" | bc)
+            
+            echo "📊 Downloadable file: $exe"
+            echo "📊 Size: $size bytes ($sizeKB KB / $sizeMB MB)"
+            
+            if [ $size -lt 800000 ]; then
+              echo "❌ CRITICAL: Downloadable executable too small ($sizeKB KB < 800 KB)"
+              echo "❌ Users would download broken 173KB files!"
+              echo "❌ Release creation BLOCKED"
+              exit 1
+            else
+              echo "✅ Downloadable size OK: $sizeKB KB"
+            fi
+          fi
+        done
+        
+        echo "=============================================="
+        echo "✅ ALL DOWNLOADABLE EXECUTABLES VERIFIED"
+        echo "=============================================="
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: betza-release-${{ github.run_number }}
+        release_name: Betza-Enhanced Stockfish v${{ github.run_number }}
+        body: |
+          ## Betza-Enhanced Musketeer-Stockfish Windows Executables
+          
+          This release contains Windows-compiled executables with full Betza notation support.
+          
+          ### Features:
+          - ✅ Complete Betza notation integration
+          - ✅ 16 custom piece types (CUSTOM_PIECE_1 through CUSTOM_PIECE_16)  
+          - ✅ HW piece pattern (Three-leaper + Wazir) included
+          - ✅ Full UCI protocol compatibility
+          - ✅ All original Musketeer chess functionality preserved
+          - ✅ Winboard/Arena GUI compatible
+          
+          ### Files:
+          - `stockfish-betza-windows.exe` - Standard x86-64 (~1.0MB+)
+          - `stockfish-betza-bmi2-windows.exe` - BMI2 optimized (~1.0MB+)
+          
+          ### Setup in Winboard:
+          1. Download the appropriate executable
+          2. Open Winboard → Engine → Install New Engine
+          3. Browse to the downloaded .exe file
+          4. Set Protocol to "UCI"
+          5. Ready to play with Betza pieces!
+        draft: false
+        prerelease: false
+
+    - name: Upload Standard Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./executables/stockfish-betza-windows.exe/stockfish-betza-windows.exe
+        asset_name: stockfish-betza-windows.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload BMI2 Windows Release Asset  
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./executables/stockfish-betza-bmi2-windows.exe/stockfish-betza-bmi2-windows.exe
+        asset_name: stockfish-betza-bmi2-windows.exe
+        asset_content_type: application/octet-stream
