@@ -1,0 +1,56 @@
+COMPLETE WINDOWS COMPILATION GUIDE
+=====================================
+
+STEP-BY-STEP INSTRUCTIONS:
+
+1. DOWNLOAD REQUIREMENTS:
+   - Visual Studio Community (free): https://visualstudio.microsoft.com/downloads/
+   - Git for Windows: https://git-scm.com/download/win
+   - Download betza-integration-files.tar.gz from this tool
+
+2. INSTALL VISUAL STUDIO:
+   - Run installer
+   - Select "Desktop development with C++"  
+   - Include Windows 10/11 SDK
+   - Install (may take 20-30 minutes)
+
+3. EXTRACT AND SETUP:
+   - Extract betza-integration-files.tar.gz using 7-Zip or WinRAR
+   - Open Command Prompt as Administrator
+   - Navigate to extraction folder
+
+4. CLONE MUSKETEER-STOCKFISH:
+   git clone https://github.com/ianfab/Musketeer-Stockfish.git
+   cd Musketeer-Stockfish\src
+
+5. COPY INTEGRATION FILES:
+   copy ..\betza-integration-files\*.* .
+   (This replaces types.h, movegen.cpp, position.h and adds betza.h, betza.cpp)
+
+6. OPEN VISUAL STUDIO COMMAND PROMPT:
+   - Start Menu → "x64 Native Tools Command Prompt for VS 2019" (or 2022)
+   - Navigate to: cd C:\path\to\Musketeer-Stockfish\src
+
+7. RUN COMPILATION:
+   - Copy windows-compile.bat to the src directory
+   - Run: windows-compile.bat
+   - Wait for compilation (2-5 minutes)
+
+8. RESULT:
+   Two Windows executables will be created:
+   - stockfish-betza-windows.exe (~1.5MB)
+   - stockfish-betza-bmi2-windows.exe (~1.5MB)
+
+9. WINBOARD SETUP:
+   - Open Winboard
+   - Engine → Install New Engine
+   - Browse to stockfish-betza-windows.exe
+   - Protocol: UCI
+   - Name: "Stockfish Betza"
+
+TROUBLESHOOTING:
+- If "cl" command not found: Make sure you're using "x64 Native Tools Command Prompt"
+- If link errors: Ensure Windows SDK is installed
+- Small exe size: Normal if all dependencies are included
+
+The compiled engines will have full Betza notation support including the HW piece pattern!
